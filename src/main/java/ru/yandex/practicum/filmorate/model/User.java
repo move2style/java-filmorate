@@ -5,10 +5,10 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class Film {
+public class User {
     long id;
+    String email;
+    String login;
     String name;
-    String description;
-    int duration;
-    String releaseDate;
+    String birthday;
 }
