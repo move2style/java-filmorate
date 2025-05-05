@@ -30,17 +30,17 @@ public class UserController {
     public User postUser(@RequestBody User user) {
         log.info("Начало выполнения метода addFilm");
 
-        if (user.getLogin() == null || user.getLogin().contains(" ") || user.getLogin().isBlank() ) {
+        if (user.getLogin() == null || user.getLogin().contains(" ") || user.getLogin().isBlank()) {
             log.info("Логин не может быть пустым");
             throw new ValidationException("Логин не может быть пустым и содержать пробелы");
         }
 
-        if (user.getEmail() == null || !user.getEmail().contains("@") || user.getEmail().isBlank() ) {
+        if (user.getEmail() == null || !user.getEmail().contains("@") || user.getEmail().isBlank()) {
             log.info("Электронная почта не может быть пустой и должна содержать символ @");
             throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @");
         }
 
-        if (user.getName() == null || user.getName().isBlank())  {
+        if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
 
@@ -63,17 +63,17 @@ public class UserController {
         if (users.containsKey(newUser.getId())) {
             User oldPost = users.get(newUser.getId());
 
-            if (newUser.getLogin() == null || newUser.getLogin().contains(" ") || newUser.getLogin().isBlank() ) {
+            if (newUser.getLogin() == null || newUser.getLogin().contains(" ") || newUser.getLogin().isBlank()) {
                 log.info("Апдейт на логин не может быть пустым");
                 throw new ValidationException("Логин не может быть пустым и содержать пробелы");
             }
 
-            if (newUser.getEmail() == null || !newUser.getEmail().contains("@") || newUser.getEmail().isBlank() ) {
+            if (newUser.getEmail() == null || !newUser.getEmail().contains("@") || newUser.getEmail().isBlank()) {
                 log.info("Апдейт на электронная почта не может быть пустой и должна содержать символ @");
                 throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @");
             }
 
-            if (newUser.getName() == null || newUser.getName().isBlank())  {
+            if (newUser.getName() == null || newUser.getName().isBlank()) {
                 newUser.setName(newUser.getLogin());
             }
 
