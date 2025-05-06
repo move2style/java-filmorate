@@ -25,9 +25,34 @@ public class FilmController {
     @PostMapping
     public Film addFilm(@RequestBody Film film) {
         log.info("Начало выполнения метода addFilm");
+        validateFilm(film);
+        // формируем дополнительные данные
+        film.setId(getNextId());
+        films.put(film.getId(), film);
+        return film;
+    }
+
+    @PutMapping
+    public Film update(@RequestBody Film newFilm) {
+        log.info("Начало выполнения метода update");
+
+        if (films.containsKey(newFilm.getId())) {
+            Film oldFilm = films.get(newFilm.getId());
+            validateFilm(newFilm);
+            // если публикация найдена и все условия соблюдены, обновляем её содержимое
+
+            oldFilm.setDescription(newFilm.getDescription());
+            oldFilm.setName(newFilm.getName());
+            oldFilm.setDuration(newFilm.getDuration());
+            oldFilm.setReleaseDate(newFilm.getReleaseDate());
+            return oldFilm;
+        }
+        throw new ValidationException("Пост с id = " + newFilm.getId() + " не найден");
+    }
+
+    public Film validateFilm(Film film) {
         LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
         LocalDate filmReleaseDate = LocalDate.parse(film.getReleaseDate());
-        // проверяем выполнение необходимых условий
         if (film.getName() == null || film.getName().isBlank()) {
             log.info("Название пустое");
             throw new ValidationException("Название не может быть пустым");
@@ -47,49 +72,7 @@ public class FilmController {
             log.info("Отрицательная продолжительность фильма");
             throw new ValidationException("Продолжительность фильма должна быть положительным числом");
         }
-
-        // формируем дополнительные данные
-        film.setId(getNextId());
-        films.put(film.getId(), film);
         return film;
-    }
-
-    @PutMapping
-    public Film update(@RequestBody Film newFilm) {
-        log.info("Начало выполнения метода update");
-        LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
-        LocalDate filmReleaseDate = LocalDate.parse(newFilm.getReleaseDate());
-
-        if (films.containsKey(newFilm.getId())) {
-            Film oldFilm = films.get(newFilm.getId());
-            if (newFilm.getName() == null || newFilm.getName().isBlank()) {
-                log.info("Апдейт на пустое название");
-                throw new ValidationException("Название не может быть пустым");
-            }
-
-            if (newFilm.getDescription().length() > 200) {
-                log.info("Апдейт на описание больше 200 символов");
-                throw new ValidationException("Максимальная длина описания — 200 символов");
-            }
-
-            if (filmReleaseDate.isBefore(minReleaseDate)) {
-                log.info("Апдейт на дату релиза раньше 28 декабря 1895 года");
-                throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года");
-            }
-
-            if (newFilm.getDuration() < 0) {
-                log.info("Апдейт на отрицательную продолжительность фильма");
-                throw new ValidationException("Продолжительность фильма должна быть положительным числом");
-            }
-            // если публикация найдена и все условия соблюдены, обновляем её содержимое
-
-            oldFilm.setDescription(newFilm.getDescription());
-            oldFilm.setName(newFilm.getName());
-            oldFilm.setDuration(newFilm.getDuration());
-            oldFilm.setReleaseDate(newFilm.getReleaseDate());
-            return oldFilm;
-        }
-        throw new ValidationException("Пост с id = " + newFilm.getId() + " не найден");
     }
 
     // вспомогательный метод для генерации идентификатора нового поста
