@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -72,5 +73,38 @@ public class FilmService {
                 .sorted(Comparator.comparing(Film::likeAmount).reversed())
                 .limit(findAllFilm.size())
                 .collect(Collectors.toList());
+    }
+
+    public Collection<Film> findAll() {
+        return storage.findAll();
+    }
+
+    public Film addFilm(Film film) {
+        return storage.addFilm(film);
+    }
+
+    public Film update(Film newFilm) {
+        return storage.update(newFilm);
+    }
+
+    public static Film validateFilm(Film film) {
+        LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
+        LocalDate filmReleaseDate = LocalDate.parse(film.getReleaseDate());
+        if (film.getName() == null || film.getName().isBlank()) {
+            throw new ValidationException("Название не может быть пустым");
+        }
+
+        if (film.getDescription().length() > 200) {
+            throw new ValidationException("Максимальная длина описания — 200 символов");
+        }
+
+        if (filmReleaseDate.isBefore(minReleaseDate)) {
+            throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года");
+        }
+
+        if (film.getDuration() < 0) {
+            throw new ValidationException("Продолжительность фильма должна быть положительным числом");
+        }
+        return film;
     }
 }

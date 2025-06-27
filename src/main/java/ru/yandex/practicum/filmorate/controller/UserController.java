@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Collection;
 
@@ -14,23 +13,22 @@ import java.util.Collection;
 @RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserController {
-    private final UserStorage userStorage;
     private final UserService userService;
 
     @GetMapping
     public Collection<User> getUsers() {
         log.info("Начало выполнения метода getUsers");
-        return userStorage.getUsers();
+        return userService.getUsers();
     }
 
     @PostMapping
     public User postUser(@RequestBody User user) {
-        return userStorage.postUser(user);
+        return userService.postUser(user);
     }
 
     @PutMapping
     public User updateUser(@RequestBody User newUser) {
-        return userStorage.updateUser(newUser);
+        return userService.updateUser(newUser);
     }
 
     //возвращаем список пользователей, являющихся его друзьями.

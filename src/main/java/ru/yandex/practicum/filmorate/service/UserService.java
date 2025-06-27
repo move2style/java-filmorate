@@ -8,6 +8,10 @@ import ru.yandex.practicum.filmorate.exeption.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -105,5 +109,41 @@ public class UserService {
                 .collect(Collectors.toList());
 
         return friendList;
+    }
+
+    public Collection<User> getUsers() {
+        return storage.getUsers();
+    }
+
+    public User postUser(User user) {
+        return storage.postUser(user);
+    }
+
+    public User updateUser(User newUser) {
+        return storage.updateUser(newUser);
+    }
+
+
+    public static User validateUser(User user) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        if (user.getLogin() == null || user.getLogin().contains(" ") || user.getLogin().isBlank()) {
+            throw new ValidationException("Логин не может быть пустым и содержать пробелы");
+        }
+
+        if (user.getEmail() == null || !user.getEmail().contains("@") || user.getEmail().isBlank()) {
+            throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @");
+        }
+
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
+
+        LocalDate birthday = LocalDate.parse(user.getBirthday(), formatter);
+        Instant birthdayInstant = birthday.atStartOfDay(ZoneId.of("UTC")).toInstant();
+        if (birthdayInstant.isAfter(Instant.now())) {
+            throw new ValidationException("Дата рождения не может быть в будущем.");
+        }
+        return user;
     }
 }

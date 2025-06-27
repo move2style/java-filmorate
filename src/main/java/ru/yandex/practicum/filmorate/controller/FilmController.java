@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.Collection;
 
@@ -15,24 +14,23 @@ import java.util.Collection;
 @RequiredArgsConstructor
 public class FilmController {
     private final FilmService filmService;
-    private final FilmStorage filmStorage;
 
     @GetMapping
     public Collection<Film> findAll() {
         log.info("Начало выполнения метода findAll");
-        return filmStorage.findAll();
+        return filmService.findAll();
     }
 
     @PostMapping
     public Film addFilm(@RequestBody Film film) {
         log.info("Начало выполнения метода addFilm");
-        return filmStorage.addFilm(film);
+        return filmService.addFilm(film);
     }
 
     @PutMapping
     public Film update(@RequestBody Film newFilm) {
         log.info("Начало выполнения метода update");
-        return filmStorage.update(newFilm);
+        return filmService.update(newFilm);
     }
 
     // пользователь ставит лайк фильму.
