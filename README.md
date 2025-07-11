@@ -5,3 +5,4 @@ Template repository for Filmorate project.
 
 ![Архитектурная диаграмма](diagrams.JPG)
 
+
