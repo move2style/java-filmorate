@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exeption.NotFoundException;
 import ru.yandex.practicum.filmorate.exeption.ValidationException;
@@ -14,12 +14,16 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class FilmService {
     private final FilmStorage storage;
     private final UserStorage userStorage;
+
+    @Autowired
+    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage, @Qualifier("userDbStorage") UserStorage userStorage) {
+        this.storage = filmStorage;
+        this.userStorage = userStorage;
+    }
 
     public void addLike(Long idFilm, Long idUser) {
         Film film = storage.findFilm(idFilm);
@@ -38,6 +42,7 @@ public class FilmService {
         }
 
         film.addLike(idUser);
+        storage.addLike(idFilm, idUser);
     }
 
     public void deleteLike(Long idFilm, Long idUser) {
@@ -54,7 +59,6 @@ public class FilmService {
     }
 
     public Collection<Film> topTenFilms(int count) {
-        log.info("Начало выполнения метода topList");
         if (count <= 0) {
             throw new ValidationException("Количество позиций в топе не может быть меньше 1");
         }
@@ -79,6 +83,10 @@ public class FilmService {
         return storage.findAll();
     }
 
+    public Film find(Long id) {
+        return storage.findFilm(id);
+    }
+
     public Film addFilm(Film film) {
         return storage.addFilm(film);
     }
@@ -89,7 +97,7 @@ public class FilmService {
 
     public static Film validateFilm(Film film) {
         LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
-        LocalDate filmReleaseDate = LocalDate.parse(film.getReleaseDate());
+        LocalDate filmReleaseDate = film.getReleaseDate();
         if (film.getName() == null || film.getName().isBlank()) {
             throw new ValidationException("Название не может быть пустым");
         }
@@ -105,6 +113,7 @@ public class FilmService {
         if (film.getDuration() < 0) {
             throw new ValidationException("Продолжительность фильма должна быть положительным числом");
         }
+
         return film;
     }
 }

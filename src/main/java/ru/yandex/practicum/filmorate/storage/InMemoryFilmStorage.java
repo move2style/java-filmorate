@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.storage;
 
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.filmorate.exeption.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -10,7 +10,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-@Component
+@Deprecated
+@Qualifier("inMemoryFilmStorage")
 public class InMemoryFilmStorage implements FilmStorage {
     static final Map<Long, Film> films = new HashMap<>();
 
@@ -50,6 +51,11 @@ public class InMemoryFilmStorage implements FilmStorage {
         Film film = films.get(idFilm);
         return film;
     }
+
+    @Override
+    public void addLike(Long idFilm, Long idUser){
+
+    };
 
     @Override
     public long getNextId() {
