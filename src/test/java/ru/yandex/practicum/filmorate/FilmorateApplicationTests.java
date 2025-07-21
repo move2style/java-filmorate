@@ -17,7 +17,7 @@ import java.util.Optional;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @JdbcTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE) // Важно!
+@AutoConfigureTestDatabase  
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Import({UserDbStorage.class})
 class FilmoRateApplicationTests {
