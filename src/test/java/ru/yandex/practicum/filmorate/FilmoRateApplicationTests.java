@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @JdbcTest
 @AutoConfigureTestDatabase
@@ -24,6 +24,8 @@ public class FilmoRateApplicationTests {
 
     private final UserDbStorage userStorage;
 
+    private Long userId;
+
     @BeforeEach
     public void setUp() {
         User user = new User();
@@ -32,42 +34,48 @@ public class FilmoRateApplicationTests {
         user.setName("Test User");
         user.setBirthday(LocalDate.of(2008, 12, 1));
         userStorage.postUser(user);
+
+        Optional<User> createdUser = userStorage.getUsers().stream().findFirst();
+        assertThat(createdUser).isPresent();
+        userId = createdUser.get().getId();
     }
 
     @Test
     public void testFindUserById() {
-        Optional<User> userOptional = Optional.ofNullable(userStorage.findUser(1L));
+        Optional<User> userOptional = Optional.ofNullable(userStorage.findUser(userId));
 
         assertThat(userOptional)
                 .isPresent()
                 .hasValueSatisfying(user ->
-                        assertThat(user).hasFieldOrPropertyWithValue("id", 1L)
+                        assertThat(user).hasFieldOrPropertyWithValue("id", userId)
                 );
     }
 
     @Test
     public void testFindAll() {
         Collection<User> allUsers = userStorage.getUsers();
-        assertThat(allUsers).isNotNull();
+        assertThat(allUsers).isNotNull().isNotEmpty();
+
         assertThat(allUsers)
-                .extracting("id")
-                .notifyAll();
+                .anySatisfy(user -> assertThat(user.getId()).isEqualTo(userId));
     }
 
     @Test
     public void testUpdateUserById() {
-        Optional<User> userOptional = Optional.ofNullable(userStorage.findUser(1L));
-        userOptional.get().setEmail("test@example.com");
-        userOptional.get().setLogin("testloginTEST");
-        userOptional.get().setName("Test UserTEST");
-        userOptional.get().setBirthday(LocalDate.of(1990, 1, 1));
+        User user = userStorage.findUser(userId);
+        assertThat(user).isNotNull();
 
-        userStorage.updateUser(userStorage.findUser(1L));
+        user.setEmail("test@example.com");
+        user.setLogin("testloginTEST");
+        user.setName("Test UserTEST");
+        user.setBirthday(LocalDate.of(1990, 1, 1));
 
-        assertThat(userOptional)
-                .isPresent()
-                .hasValueSatisfying(user ->
-                        assertThat(user).hasFieldOrPropertyWithValue("login", "testloginTEST")
-                );
+        userStorage.updateUser(user);
+
+        User updatedUser = userStorage.findUser(userId);
+
+        assertThat(updatedUser)
+                .isNotNull()
+                .hasFieldOrPropertyWithValue("login", "testloginTEST");
     }
 }
