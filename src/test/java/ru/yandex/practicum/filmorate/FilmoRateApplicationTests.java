@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -29,18 +30,44 @@ public class FilmoRateApplicationTests {
         user.setEmail("test@example.com");
         user.setLogin("testlogin");
         user.setName("Test User");
-        user.setBirthday(LocalDate.of(1990, 1, 1));
-        User createdUser = userStorage.postUser(user);
+        user.setBirthday(LocalDate.of(2008, 12, 1));
+        userStorage.postUser(user);
     }
 
     @Test
     public void testFindUserById() {
-        Optional<User> userOptional = Optional.ofNullable(userStorage.findUser(1L)); // используем 1L, а не Long.valueOf(1)
+        Optional<User> userOptional = Optional.ofNullable(userStorage.findUser(1L));
 
         assertThat(userOptional)
                 .isPresent()
                 .hasValueSatisfying(user ->
-                        assertThat(user).hasFieldOrPropertyWithValue("id", 1L) //используем 1L
+                        assertThat(user).hasFieldOrPropertyWithValue("id", 1L)
+                );
+    }
+
+    @Test
+    public void testFindAll() {
+        Collection<User> allUsers = userStorage.getUsers();
+        assertThat(allUsers).isNotNull();
+        assertThat(allUsers)
+                .extracting("id")
+                .notifyAll();
+    }
+
+    @Test
+    public void testUpdateUserById() {
+        Optional<User> userOptional = Optional.ofNullable(userStorage.findUser(1L));
+        userOptional.get().setEmail("test@example.com");
+        userOptional.get().setLogin("testloginTEST");
+        userOptional.get().setName("Test UserTEST");
+        userOptional.get().setBirthday(LocalDate.of(1990, 1, 1));
+
+        userStorage.updateUser(userStorage.findUser(1L));
+
+        assertThat(userOptional)
+                .isPresent()
+                .hasValueSatisfying(user ->
+                        assertThat(user).hasFieldOrPropertyWithValue("login", "testloginTEST")
                 );
     }
 }
