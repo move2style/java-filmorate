@@ -76,7 +76,7 @@ public class FilmDbStorage implements FilmStorage {
         }
         return findFilm(filmId);
     }
-    
+
     @Override
     public Collection<Film> findAll() {
         String sql = "select f.id id, f.name name,f.description description,\n" +
@@ -125,7 +125,6 @@ public class FilmDbStorage implements FilmStorage {
                         userId);
             }
         }
-
         return findFilm(film.getId());
     }
 
