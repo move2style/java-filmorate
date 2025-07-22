@@ -116,7 +116,7 @@ public class UserDbStorage implements UserStorage {
         String friendsSql = "select * from friends where user_id = ?";
         List<Long> friendsCollection = jdbcTemplate.query(friendsSql, (rs1, rowNum) -> Long.valueOf(makeUserFriend(rs1)), id);
 
-        return new User(id, name, email, login, birthday, new HashSet<>(friendsCollection));
+        return new User(id, email, login, name, birthday, new HashSet<>(friendsCollection));
     }
 
     private Integer makeUserFriend(ResultSet rs) throws SQLException {

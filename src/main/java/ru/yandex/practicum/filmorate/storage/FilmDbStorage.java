@@ -11,7 +11,6 @@ import ru.yandex.practicum.filmorate.exeption.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -33,26 +32,6 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film addFilm(Film film) {
-        FilmService.validateFilm(film);
-
-        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
-            // Проверяем, существуют ли все жанры в базе данных
-            boolean allGenresExist = film.getGenres().stream()
-                    .allMatch(genre -> genreExists(genre.getId()));
-
-            if (!allGenresExist) {
-                throw new NotFoundException("Один или несколько жанров не найдены в базе данных.");
-            }
-        }
-
-        if (film.getMpa() != null) {
-            boolean allMpaExist = mpaExists(film.getMpa().getId());
-
-            if (!allMpaExist) {
-                throw new NotFoundException("Один или несколько рейтингов не найдены в базе данных.");
-            }
-        }
-
         Map<String, Object> values = new HashMap<>();
         values.put("name", film.getName());
         values.put("description", film.getDescription());
@@ -145,7 +124,6 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private Film makeFilm(ResultSet rs) throws SQLException {
-
         Long id = rs.getLong("id");
         String name = rs.getString("name");
         String description = rs.getString("description");
@@ -162,10 +140,10 @@ public class FilmDbStorage implements FilmStorage {
         List<Genre> genreCollection = jdbcTemplate.query(genreSql, (rs1, rowNum) -> makeFilmsGenre(rs1), id);
 
         String likesSql = "select * from likes where id_film = ?";
-        List<Long> usersCollection = jdbcTemplate.query(likesSql, (rs1, rowNum) -> (long) makeFilmsLike(rs1), id);
+        List<Long> usersCollection = jdbcTemplate.query(likesSql, (rs1, rowNum) -> makeFilmsLike(rs1), id);
 
-        return new Film(id, name, description, releaseDate, duration, new LinkedHashSet<>(genreCollection),
-                new Mpa(mpaId, mpaName), new HashSet<>(usersCollection));
+        return new Film(id, name, description, duration, releaseDate, new HashSet<>(usersCollection),
+                new LinkedHashSet<>(genreCollection), new Mpa(mpaId, mpaName));
     }
 
     private Genre makeFilmsGenre(ResultSet rs) throws SQLException {

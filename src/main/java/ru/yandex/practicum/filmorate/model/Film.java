@@ -3,13 +3,17 @@ package ru.yandex.practicum.filmorate.model;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Film {
     long id;
     @NotBlank
@@ -23,9 +27,6 @@ public class Film {
     private Set<Genre> genres = new HashSet<>();
     private Mpa mpa;
 
-    public Film() {
-    }
-
     public void addLike(Long userId) {
         likes.add(userId);
     }
@@ -36,25 +37,5 @@ public class Film {
 
     public Integer likeAmount() {
         return likes.size();
-    }
-
-    public Film(Long id, String name, String description, LocalDate releaseDate, Integer duration, Set<Genre> genres,
-                Mpa mpa, Set<Long> likes) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-        this.genres = genres;
-        this.mpa = mpa;
-        this.likes = likes;
-    }
-
-    public void addGenre(Genre genre) {
-        genres.add(genre);
-    }
-
-    public void deleteGenre(Genre genre) {
-        genres.remove(genre);
     }
 }
