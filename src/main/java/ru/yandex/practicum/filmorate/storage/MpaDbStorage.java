@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.storage;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exeption.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.ResultSet;
@@ -31,7 +30,7 @@ public class MpaDbStorage implements MpaStorage {
         if (mpaCollection.size() == 1) {
             return mpaCollection.get(0);
         } else {
-            throw new NotFoundException(String.format("mpa с id-%d не существует.", id));
+            return null;
         }
     }
 

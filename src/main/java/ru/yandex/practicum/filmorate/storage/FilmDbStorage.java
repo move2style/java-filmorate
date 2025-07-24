@@ -17,6 +17,8 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
 
+import static ru.yandex.practicum.filmorate.service.FilmService.validateFilm;
+import static ru.yandex.practicum.filmorate.service.FilmService.validateFilmDependencies;
 import static ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage.films;
 
 @Component
@@ -32,6 +34,9 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film addFilm(Film film) {
+        validateFilm(film);
+        validateFilmDependencies(film);
+
         Map<String, Object> values = new HashMap<>();
         values.put("name", film.getName());
         values.put("description", film.getDescription());
@@ -68,6 +73,9 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     public Film update(@RequestBody Film film) {
+        validateFilm(film);
+        validateFilmDependencies(film);
+
         findFilm(film.getId());
 
         String sqlQuery = "update films set " +

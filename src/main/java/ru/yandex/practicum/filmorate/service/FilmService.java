@@ -9,10 +9,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.GenreStorage;
-import ru.yandex.practicum.filmorate.storage.MpaStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.*;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -22,18 +19,12 @@ import java.util.stream.Collectors;
 public class FilmService {
     private final FilmStorage storage;
     private final UserStorage userStorage;
-    private static GenreStorage genreStorage; // Добавляем GenreStorage
-    private static MpaStorage mpaStorage; // Добавляем MpaStorage
 
     @Autowired
     public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
-                       @Qualifier("userDbStorage") UserStorage userStorage,
-                       GenreStorage genreStorage,
-                       MpaStorage mpaStorage) {
+                       @Qualifier("userDbStorage") UserStorage userStorage) {
         this.storage = filmStorage;
         this.userStorage = userStorage;
-        this.genreStorage = genreStorage;
-        this.mpaStorage = mpaStorage;
     }
 
     public void addLike(Long idFilm, Long idUser) {
@@ -99,14 +90,10 @@ public class FilmService {
     }
 
     public Film addFilm(Film film) {
-        validateFilm(film);
-        validateFilmDependencies(film);
         return storage.addFilm(film);
     }
 
     public Film update(Film newFilm) {
-        validateFilm(newFilm);
-        validateFilmDependencies(newFilm);
         return storage.update(newFilm);
     }
 
@@ -139,7 +126,7 @@ public class FilmService {
     private static void validateGenres(Set<Genre> genres) {
         if (genres != null && !genres.isEmpty()) {
             boolean allGenresExist = genres.stream()
-                    .allMatch(genre -> genreExists(genre.getId()));
+                    .allMatch(genre -> GenreService.genreExists(genre.getId()));
             if (!allGenresExist) {
                 throw new NotFoundException("Один или несколько жанров не найдены в базе данных.");
             }
@@ -148,28 +135,10 @@ public class FilmService {
 
     private static void validateMpa(Mpa mpa) {
         if (mpa != null) {
-            boolean mpaExists = mpaExists(mpa.getId());
+            boolean mpaExists = MpaService.mpaExists(mpa.getId());
             if (!mpaExists) {
                 throw new NotFoundException("Рейтинг MPA не найден в базе данных.");
             }
-        }
-    }
-
-    private static boolean genreExists(Integer genreId) {
-        try {
-            genreStorage.find(genreId);  // Используем ваш GenreStorage
-            return true;
-        } catch (NotFoundException e) {
-            return false;
-        }
-    }
-
-    private static boolean mpaExists(Integer mpaId) {
-        try {
-            mpaStorage.find(mpaId);  // Используем ваш MpaStorage
-            return true;
-        } catch (NotFoundException e) {
-            return false;
         }
     }
 }
