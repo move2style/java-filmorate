@@ -15,6 +15,11 @@ import java.util.Collection;
 public class FilmController {
     private final FilmService filmService;
 
+    @GetMapping("/{id}")
+    public Film find(@PathVariable Long id) {
+        return filmService.find(id);
+    }
+
     @GetMapping
     public Collection<Film> findAll() {
         log.info("Начало выполнения метода findAll");

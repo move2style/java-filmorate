@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exeption.DuplicatedDataException;
 import ru.yandex.practicum.filmorate.exeption.NotFoundException;
@@ -11,7 +12,6 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -19,10 +19,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class UserService {
 
     private final UserStorage storage;
+
+
+    @Autowired
+    public UserService(@Qualifier("userDbStorage") UserStorage inMemoryUserStorage) {
+        this.storage = inMemoryUserStorage;
+    }
 
     public Set<Long> addFriend(Long idUserAdding, Long idUserAdded) {
         User userAdding = storage.findUser(idUserAdding);
@@ -46,7 +51,6 @@ public class UserService {
         userAdded.addFriend(idUserAdding);
 
         storage.updateUser(userAdding);
-        storage.updateUser(userAdded);
         return userAdded.getFriends();
     }
 
@@ -65,8 +69,7 @@ public class UserService {
         userDeleting.deleteFriend(idUserDeleted);
         userDeleted.deleteFriend(idUserDeleting);
 
-        storage.postUser(userDeleting);
-        storage.postUser(userDeleted);
+        storage.updateUser(userDeleting);
         return userDeleting.getFriends();
     }
 
@@ -123,9 +126,7 @@ public class UserService {
         return storage.updateUser(newUser);
     }
 
-
     public static User validateUser(User user) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         if (user.getLogin() == null || user.getLogin().contains(" ") || user.getLogin().isBlank()) {
             throw new ValidationException("Логин не может быть пустым и содержать пробелы");
@@ -139,7 +140,7 @@ public class UserService {
             user.setName(user.getLogin());
         }
 
-        LocalDate birthday = LocalDate.parse(user.getBirthday(), formatter);
+        LocalDate birthday = user.getBirthday();
         Instant birthdayInstant = birthday.atStartOfDay(ZoneId.of("UTC")).toInstant();
         if (birthdayInstant.isAfter(Instant.now())) {
             throw new ValidationException("Дата рождения не может быть в будущем.");
