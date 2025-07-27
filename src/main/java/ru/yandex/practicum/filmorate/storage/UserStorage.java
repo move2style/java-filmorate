@@ -14,6 +14,7 @@ public interface UserStorage {
 
     User findUser(Long idUser);
 
-    // вспомогательный метод для генерации идентификатора нового поста
     long getNextId();
+
+    boolean delete(Long id);
 }
