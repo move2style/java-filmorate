@@ -1,26 +1,30 @@
 package ru.yandex.practicum.filmorate.service;
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 97c2343 (скопирован мейн для группового занятия)
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exeption.DuplicatedDataException;
-import ru.yandex.practicum.filmorate.exeption.NotFoundException;
-import ru.yandex.practicum.filmorate.exeption.ValidationException;
+import ru.yandex.practicum.filmorate.model.FriendshipStatus;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+<<<<<<< HEAD
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+=======
+>>>>>>> 97c2343 (скопирован мейн для группового занятия)
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
+    private final UserStorage userStorage;
 
+<<<<<<< HEAD
     private final UserStorage storage;
 
 
@@ -71,61 +75,41 @@ public class UserService {
 
         storage.updateUser(userDeleting);
         return userDeleting.getFriends();
+=======
+    @Autowired
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
+        this.userStorage = userStorage;
     }
 
-    public List<User> mutualFriends(Long idUserMain, Long idUserCompare) {
-        User userMain = storage.findUser(idUserMain);
-        User userCompare = storage.findUser(idUserCompare);
-
-        if (userMain == null || userCompare == null) {
-            throw new NotFoundException("Один из пользователей не найден");
-        }
-
-        if (idUserMain == idUserCompare) {
-            throw new ValidationException("Нельзя сравнить друзей у самого себя");
-        }
-
-        Set<Long> finalResultId = userMain.getFriends().stream()
-                .filter(userCompare.getFriends()::contains)
-                .collect(Collectors.toSet());
-
-
-        return finalResultId.stream()
-                .map(id -> storage.findUser(id))
-                .collect(Collectors.toList());
+    public Collection<User> findAll() {
+        return userStorage.findAll();
+>>>>>>> 97c2343 (скопирован мейн для группового занятия)
     }
 
-    public Collection<User> getFriendsList(Long id) {
-        User user = storage.findUser(id);
-
-        if (user == null) {
-            throw new NotFoundException("пользователь не найден");
-        }
-
-        if (user.getFriends() == null) {
-            return null;
-        }
-
-        List<User> friendList = user.getFriends().stream()
-                .map(friendId -> storage.findUser(friendId))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-
-        return friendList;
+    public User create(User user) {
+        return userStorage.create(user);
     }
 
-    public Collection<User> getUsers() {
-        return storage.getUsers();
+    public User update(User newElement) {
+        return userStorage.update(newElement);
     }
 
-    public User postUser(User user) {
-        return storage.postUser(user);
+    public User getOne(Long id) {
+        return userStorage.getOne(id);
     }
 
-    public User updateUser(User newUser) {
-        return storage.updateUser(newUser);
+    public List<User> getFriends(Long id) {
+        return userStorage.getFriends(id);
     }
 
+    public void addFriend(Long userId, Long friendId) {
+        userStorage.getOne(userId);
+        userStorage.getOne(friendId);
+
+        userStorage.addFriendship(userId, friendId, FriendshipStatus.FRIENDS);
+    }
+
+<<<<<<< HEAD
     public static User validateUser(User user) {
 
         if (user.getLogin() == null || user.getLogin().contains(" ") || user.getLogin().isBlank()) {
@@ -146,5 +130,16 @@ public class UserService {
             throw new ValidationException("Дата рождения не может быть в будущем.");
         }
         return user;
+=======
+    public void deleteFriend(Long userId, Long friendId) {
+        userStorage.getOne(userId);
+        userStorage.getOne(friendId);
+
+        userStorage.removeFriendship(userId, friendId);
+    }
+
+    public List<User> showMutualFriends(Long userId1, Long userId2) {
+        return userStorage.getMutualFriends(userId1, userId2);
+>>>>>>> 97c2343 (скопирован мейн для группового занятия)
     }
 }
