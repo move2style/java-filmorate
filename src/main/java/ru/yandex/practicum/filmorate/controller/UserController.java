@@ -1,80 +1,57 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.regex.Pattern;
 
+@Slf4j
 @RestController
 @RequestMapping("/users")
+@RequiredArgsConstructor
 public class UserController {
-
     private final UserService userService;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
-
     @GetMapping
-    public Collection<User> findAll() {
-        return userService.findAll();
+    public Collection<User> getUsers() {
+        log.info("Начало выполнения метода getUsers");
+        return userService.getUsers();
     }
 
     @PostMapping
-    public User create(@RequestBody User user) {
-        validateUser(user);
-        return userService.create(user);
+    public User postUser(@RequestBody User user) {
+        return userService.postUser(user);
     }
 
     @PutMapping
-    public User update(@RequestBody User newElement) {
-        validateUser(newElement);
-        return userService.update(newElement);
+    public User updateUser(@RequestBody User newUser) {
+        return userService.updateUser(newUser);
     }
 
-
-    @GetMapping("/{id}")
-    public User getUserById(@PathVariable Long id) {
-        return userService.getOne(id);
-    }
-
-    @PutMapping("/{id}/friends/{friendId}")
-    public void addFriend(@PathVariable Long id, @PathVariable Long friendId) {
-        userService.addFriend(id, friendId);
-    }
-
-    @DeleteMapping("/{id}/friends/{friendId}")
-    public void removeFriend(@PathVariable Long id, @PathVariable Long friendId) {
-        userService.deleteFriend(id, friendId);
-    }
-
+    //возвращаем список пользователей, являющихся его друзьями.
     @GetMapping("/{id}/friends")
-    public List<User> getFriends(@PathVariable Long id) {
-        return userService.getFriends(id);
+    public Collection<User> friendsList(@PathVariable Long id) {
+        return userService.getFriendsList(id);
     }
 
+    //список друзей, общих с другим пользователем.
     @GetMapping("/{id}/friends/common/{otherId}")
-    public List<User> getMutualFriends(@PathVariable Long id, @PathVariable Long otherId) {
-        return userService.showMutualFriends(id, otherId);
+    public Collection<User> mutualFriends(@PathVariable Long id, @PathVariable Long otherId) {
+        return userService.mutualFriends(id, otherId);
     }
 
-    private void validateUser(User user) {
-        if (user.getLogin() == null || user.getLogin().isBlank() || user.getLogin().contains(" ")) {
-            throw new ValidationException("Логин не может быть пустым и содержать пробелы.");
-        }
-        if (user.getEmail() == null || user.getEmail().isBlank()) {
-            throw new ValidationException("Email не может быть пустым.");
-        }
-        String emailRegex = "^[\\w-.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
-        if (!user.getEmail().isBlank() && !Pattern.matches(emailRegex, user.getEmail())) {
-            throw new ValidationException("Неверный формат email: " + user.getEmail());
-        }
-        if (user.getBirthday() != null && user.getBirthday().isAfter(java.time.LocalDate.now())) {
-            throw new ValidationException("Дата рождения не может быть в будущем.");
-        }
+    //добавление в друзья
+    @PutMapping("/{id}/friends/{friendId}")
+    public Collection<Long> addFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        return userService.addFriend(id, friendId);
+    }
+
+    //удаление из друзей
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public Collection<Long> deleteFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        return userService.deleteFriend(id, friendId);
     }
 }

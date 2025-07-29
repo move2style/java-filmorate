@@ -1,19 +1,18 @@
 package ru.yandex.practicum.filmorate.storage;
 
-import ru.yandex.practicum.filmorate.model.FriendshipStatus;
+import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.Collection;
 
-public interface UserStorage extends BaseStorage<User> {
-    List<User> getFriends(Long id);
+public interface UserStorage {
+    Collection<User> getUsers();
 
-    Optional<FriendshipStatus> getFriendshipStatus(long userId, long friendId);
+    User postUser(@RequestBody User user);
 
-    void removeFriendship(long userId, long friendId);
+    User updateUser(@RequestBody User newUser);
 
-    void updateFriendshipStatus(long userId, long friendId, FriendshipStatus status);
+    User findUser(Long idUser);
 
     long getNextId();
 
